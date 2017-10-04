@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+//#include <syscalls.c>
 
 /* USER CODE BEGIN Includes */
 
@@ -64,17 +65,20 @@ static void MX_USART3_UART_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_ADC3_Init(void);
 
+void bubbleSort(uint16_t*, uint8_t);
+uint16_t ADC_GetSampleAvgNDeleteX(uint8_t, uint8_t);
+
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
 #ifdef __GNUC__
 
 		#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else 
+#else
 		#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 
 #endif /*__GNUC__*/
-		
+
 PUTCHAR_PROTOTYPE
 {
 	HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
@@ -121,7 +125,7 @@ int main(void)
   MX_ADC3_Init();
 
   /* USER CODE BEGIN 2 */
-
+  int deneme = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,23 +140,84 @@ int main(void)
 		
 		
 		
-//		HAL_ADC_Start(&hadc1);
-//		HAL_ADC_PollForConversion(&hadc1, 100);
-//		adcVal = HAL_ADC_GetValue(&hadc1);
-//		HAL_ADC_Stop(&hadc1);
+//		HAL_ADC_Start(&hadc3);
+//		HAL_ADC_PollForConversion(&hadc3, 100);
+//		adcVal = HAL_ADC_GetValue(&hadc3);
+//		HAL_ADC_Stop(&hadc3);
 		
 		//adcVal_mV = adcVal * 0.000806;  //adcVal * 3,3 /4096
-		//adcVal = ADC_GetSampleAvgNDeleteX(8 , 4);
-		//adcVal_mV = adcVal * 0.00073;  //adcVal * 3 /4096 --- Vref for ADC 3V in STM32
+		adcVal = ADC_GetSampleAvgNDeleteX(8 , 4);
+		adcVal_mV = adcVal * 0.00073;  //adcVal * 3 /4096 --- Vref for ADC 3V in STM32
 		//adcVal_mV = adcVal * 0.0029;
 
 	  printf("ADC: %d\t\tmV: %.3f\n\r", adcVal,adcVal_mV);
+	  //printf("deneme sayisi: %d\r\n", deneme);
+	  //fflush(stdout);
+	  deneme += 1;
 	  HAL_Delay(200);
 
   }
   /* USER CODE END 3 */
 
 }
+
+
+//------------------------FILTERING ADC for better stability of analog value
+
+uint16_t ADC_GetSampleAvgNDeleteX(uint8_t N , uint8_t X)
+{
+	uint16_t adcVal;
+ uint32_t avg_sample =0x00;
+ uint16_t adc_sample[8]={0,0,0,0,0,0,0,0};
+ uint8_t index=0x00;
+
+ for (index=0x00; index<N; index++)
+ {
+ /* ADC start conv */
+		HAL_ADC_Start(&hadc3);
+		HAL_ADC_PollForConversion(&hadc3, 100);
+		adcVal = HAL_ADC_GetValue(&hadc3);
+		HAL_ADC_Stop(&hadc3);
+ /* Store ADC samples */
+ adc_sample[index] = adcVal;
+ }
+
+ /* Sort the N-X ADC samples */
+ bubbleSort(adc_sample,8);
+
+ /* Add the N ADC samples */
+ for (index=X/2; index<N-X/2; index++)
+ {
+ avg_sample += adc_sample[index];
+ }
+
+ /* Compute the average of N-X ADC sample */
+ avg_sample /= N-X;
+
+ /* Return average value */
+ return avg_sample;
+}
+
+void bubbleSort(uint16_t dizi[], uint8_t elemanSayisi)
+{
+     uint16_t temp;
+     int i, j;
+
+     for (i=1; i<elemanSayisi; i++)
+     {
+         for (j=0; j<elemanSayisi-i; j++)
+         {
+             if(dizi[j] > dizi[j+1])
+             {
+                        temp = dizi [j];
+                        dizi [j] = dizi [j+1];
+                        dizi [j+1] = temp;
+             }
+         }
+     }
+}
+
+//------------------------FILTERING ADC for better stability of analog value
 
 /** System Clock Configuration
 */
