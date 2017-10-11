@@ -68,9 +68,9 @@ static void MX_ADC3_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 
 
-void bubbleSort(uint16_t*, uint8_t);
-uint16_t ADC_GetSampleAvgNDeleteXADC2(uint8_t, uint8_t);
-uint16_t ADC_GetSampleAvgNDeleteXADC3(uint8_t, uint8_t);
+//void bubbleSort(uint16_t*, uint8_t);
+//uint16_t ADC_GetSampleAvgNDeleteXADC2(uint8_t, uint8_t);
+//uint16_t ADC_GetSampleAvgNDeleteXADC3(uint8_t, uint8_t);
 
 #ifdef __GNUC__
 
@@ -90,15 +90,15 @@ PUTCHAR_PROTOTYPE
 
 /* USER CODE BEGIN 0 */
 
+uint16_t adcVal1[4];
+double adcVal_mV1[4];
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
-	uint32_t adcVal1[4];
-	double adcVal_mV1[4];
 
   /* USER CODE END 1 */
 
@@ -151,106 +151,15 @@ int main(void)
 //		adcVal = ADC_GetSampleAvgNDeleteX(8 , 4);
 //		adcVal_mV = adcVal * 0.00073;  //adcVal * 3 /4096 --- Vref for ADC 3V in STM32
 		//adcVal_mV = adcVal * 0.0029;
-
-	  //printf("ADC1: %d\t\tmV: %.3f\nADC2: %d\t\tmV: %.3f\nADC3: %d\t\tmV: %.3f\nADC4: %d\t\tmV: %.3f\n\r", adcVal1[0],adcVal_mV1[0],adcVal1[1],adcVal_mV1[1],adcVal1[2],adcVal_mV1[2],adcVal1[3],adcVal_mV1[3]);
-	 // HAL_Delay(200);
+	  //printf("ADC1: %d\t\tmV: %.3f\n\n\r", adcVal1[0],adcVal_mV1[0]);
+	 //printf("ADC1: %d\t\tmV: %.3f\nADC2: %d\t\tmV: %.3f\nADC3: %d\t\tmV: %.3f\nADC4: %d\t\tmV: %.3f\n\r", adcVal1[0],adcVal_mV1[0],adcVal1[1],adcVal_mV1[1],adcVal1[2],adcVal_mV1[2],adcVal1[3],adcVal_mV1[3]);
+	 //HAL_Delay(200);
 
   }
   /* USER CODE END 3 */
 
 }
 
-
-
-//-----------------------------------------
-uint16_t ADC_GetSampleAvgNDeleteXADC2(uint8_t N , uint8_t X)
-{
-	uint16_t adcVal;
- uint32_t avg_sample =0x00;
- uint16_t adc_sample[8]={0,0,0,0,0,0,0,0};
- uint8_t index=0x00;
-
- for (index=0x00; index<N; index++)
- {
- /* ADC start conv */
-		HAL_ADC_Start(&hadc2);
-		HAL_ADC_PollForConversion(&hadc2, 100);
-		adcVal = HAL_ADC_GetValue(&hadc2);
-		HAL_ADC_Stop(&hadc2);
- /* Store ADC samples */
- adc_sample[index] = adcVal;
- }
-
- /* Sort the N-X ADC samples */
- bubbleSort(adc_sample,8);
-
- /* Add the N ADC samples */
- for (index=X/2; index<N-X/2; index++)
- {
- avg_sample += adc_sample[index];
- }
-
- /* Compute the average of N-X ADC sample */
- avg_sample /= N-X;
-
- /* Return average value */
- return avg_sample;
-}
-
-uint16_t ADC_GetSampleAvgNDeleteXADC3(uint8_t N , uint8_t X)
-{
-	uint16_t adcVal;
- uint32_t avg_sample =0x00;
- uint16_t adc_sample[8]={0,0,0,0,0,0,0,0};
- uint8_t index=0x00;
-
- for (index=0x00; index<N; index++)
- {
- /* ADC start conv */
-		HAL_ADC_Start(&hadc3);
-		HAL_ADC_PollForConversion(&hadc3, 100);
-		adcVal = HAL_ADC_GetValue(&hadc3);
-		HAL_ADC_Stop(&hadc3);
- /* Store ADC samples */
- adc_sample[index] = adcVal;
- }
-
- /* Sort the N-X ADC samples */
- bubbleSort(adc_sample,8);
-
- /* Add the N ADC samples */
- for (index=X/2; index<N-X/2; index++)
- {
- avg_sample += adc_sample[index];
- }
-
- /* Compute the average of N-X ADC sample */
- avg_sample /= N-X;
-
- /* Return average value */
- return avg_sample;
-}
-
-void bubbleSort(uint16_t dizi[], uint8_t elemanSayisi)
-{
-     uint16_t temp;
-     int i, j;
-
-     for (i=1; i<elemanSayisi; i++)
-     {
-         for (j=0; j<elemanSayisi-i; j++)
-         {
-             if(dizi[j] > dizi[j+1])
-             {
-                        temp = dizi [j];
-                        dizi [j] = dizi [j+1];
-                        dizi [j+1] = temp;
-             }
-         }
-     }
-}
-
-//-----------------------------------------
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
@@ -287,7 +196,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
@@ -315,9 +224,9 @@ static void MX_ADC2_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.ScanConvMode = DISABLE;
+  hadc2.Init.ScanConvMode = ENABLE;
   hadc2.Init.ContinuousConvMode = ENABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -333,7 +242,7 @@ static void MX_ADC2_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_14;
+  sConfig.Channel = ADC_CHANNEL_8;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
@@ -343,7 +252,7 @@ static void MX_ADC2_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_8;
+  sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = 2;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
@@ -352,6 +261,7 @@ static void MX_ADC2_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
+  sConfig.Channel = ADC_CHANNEL_14;
   sConfig.Rank = 3;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
@@ -360,6 +270,7 @@ static void MX_ADC2_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
+  sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = 4;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
@@ -377,9 +288,9 @@ static void MX_ADC3_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc3.Instance = ADC3;
-  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc3.Init.ScanConvMode = DISABLE;
+  hadc3.Init.ScanConvMode = ENABLE;
   hadc3.Init.ContinuousConvMode = ENABLE;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -395,7 +306,7 @@ static void MX_ADC3_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_13;
+  sConfig.Channel = ADC_CHANNEL_10;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
@@ -405,7 +316,7 @@ static void MX_ADC3_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_10;
+  sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = 2;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
@@ -414,6 +325,7 @@ static void MX_ADC3_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
+  sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = 3;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
@@ -422,6 +334,7 @@ static void MX_ADC3_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
+  sConfig.Channel = ADC_CHANNEL_13;
   sConfig.Rank = 4;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
