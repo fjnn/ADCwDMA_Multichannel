@@ -90,7 +90,7 @@ PUTCHAR_PROTOTYPE
 
 /* USER CODE BEGIN 0 */
 
-uint16_t adcVal1[4];
+uint16_t adcVal1[4], adcVal2[4];
 double adcVal_mV1[4];
 
 /* USER CODE END 0 */
@@ -128,6 +128,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_ADC_Start_DMA(&hadc2,adcVal1,4);
+  HAL_ADC_Start_DMA(&hadc3,adcVal2,4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
