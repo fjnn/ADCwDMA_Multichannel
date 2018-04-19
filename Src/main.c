@@ -1,7 +1,8 @@
+
 /**
   ******************************************************************************
-  * File Name          : main.c
-  * Description        : Main program body
+  * @file           : main.c
+  * @brief          : Main program body
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -9,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -60,11 +61,11 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_ADC3_Init(void);
-void bubbleSort(uint16_t*, uint8_t);
-uint16_t ADC_GetSampleAvgNDeleteX(uint8_t, uint8_t);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void bubbleSort(uint16_t dizi[], uint8_t elemanSayisi);
+uint16_t ADC_GetSampleAvgNDeleteX(uint8_t N , uint8_t X);
 
 #ifdef __GNUC__
 
@@ -86,9 +87,13 @@ PUTCHAR_PROTOTYPE
 
 /* USER CODE END 0 */
 
+/**
+  * @brief  The application entry point.
+  *
+  * @retval None
+  */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
 
 	uint16_t adcVal;
@@ -117,7 +122,6 @@ int main(void)
   MX_DMA_Init();
   MX_USART3_UART_Init();
   MX_ADC3_Init();
-
   /* USER CODE BEGIN 2 */
   int deneme = 0;
   /* USER CODE END 2 */
@@ -155,63 +159,10 @@ int main(void)
 
 }
 
-//-----------------------------------------
-uint16_t ADC_GetSampleAvgNDeleteX(uint8_t N , uint8_t X)
-{
-	uint16_t adcVal;
- uint32_t avg_sample =0x00;
- uint16_t adc_sample[8]={0,0,0,0,0,0,0,0};
- uint8_t index=0x00;
-
- for (index=0x00; index<N; index++)
- {
- /* ADC start conv */
-		HAL_ADC_Start(&hadc3);
-		HAL_ADC_PollForConversion(&hadc3, 100);
-		adcVal = HAL_ADC_GetValue(&hadc3);
-		HAL_ADC_Stop(&hadc3);
- /* Store ADC samples */
- adc_sample[index] = adcVal;
- }
-
- /* Sort the N-X ADC samples */
- bubbleSort(adc_sample,8);
-
- /* Add the N ADC samples */
- for (index=X/2; index<N-X/2; index++)
- {
- avg_sample += adc_sample[index];
- }
-
- /* Compute the average of N-X ADC sample */
- avg_sample /= N-X;
-
- /* Return average value */
- return avg_sample;
-}
-
-void bubbleSort(uint16_t dizi[], uint8_t elemanSayisi)
-{
-     uint16_t temp;
-     int i, j;
-
-     for (i=1; i<elemanSayisi; i++)
-     {
-         for (j=0; j<elemanSayisi-i; j++)
-         {
-             if(dizi[j] > dizi[j+1])
-             {
-                        temp = dizi [j];
-                        dizi [j] = dizi [j+1];
-                        dizi [j+1] = temp;
-             }
-         }
-     }
-}
-
-//-----------------------------------------
-/** System Clock Configuration
-*/
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
 
@@ -231,7 +182,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 60;
+  RCC_OscInitStruct.PLL.PLLN = 84;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -248,7 +199,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -274,7 +225,7 @@ static void MX_ADC3_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc3.Instance = ADC3;
-  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
   hadc3.Init.ScanConvMode = DISABLE;
   hadc3.Init.ContinuousConvMode = ENABLE;
@@ -368,49 +319,103 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+//-----------------------------------------
+uint16_t ADC_GetSampleAvgNDeleteX(uint8_t N , uint8_t X)
+{
+	uint16_t adcVal;
+ uint32_t avg_sample =0x00;
+ uint16_t adc_sample[N];
+ for(int i = 0; i < N; i++) {
+	 adc_sample[i] = 0;
+ }
+ uint8_t index=0x00;
+
+ for (index=0x00; index<N; index++)
+ {
+ /* ADC start conv */
+		HAL_ADC_Start(&hadc3);
+		HAL_ADC_PollForConversion(&hadc3, 100);
+		adcVal = HAL_ADC_GetValue(&hadc3);
+		HAL_ADC_Stop(&hadc3);
+ /* Store ADC samples */
+ adc_sample[index] = adcVal;
+ }
+
+ /* Sort the N-X ADC samples */
+ bubbleSort(adc_sample,N);
+
+ /* Add the N ADC samples */
+ for (index=X/2; index<N-X/2; index++)
+ {
+ avg_sample += adc_sample[index];
+ }
+
+ /* Compute the average of N-X ADC sample */
+ avg_sample /= N-X;
+
+ /* Return average value */
+ return avg_sample;
+}
+
+void bubbleSort(uint16_t dizi[], uint8_t elemanSayisi)
+{
+     uint16_t temp;
+     int i, j;
+
+     for (i=1; i<elemanSayisi; i++)
+     {
+         for (j=0; j<elemanSayisi-i; j++)
+         {
+             if(dizi[j] > dizi[j+1])
+             {
+                        temp = dizi [j];
+                        dizi [j] = dizi [j+1];
+                        dizi [j+1] = temp;
+             }
+         }
+     }
+}
 /* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
-  * @param  None
+  * @param  file: The file name as string.
+  * @param  line: The line in file as a number.
   * @retval None
   */
-void _Error_Handler(char * file, int line)
+void _Error_Handler(char *file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   while(1) 
   {
   }
-  /* USER CODE END Error_Handler_Debug */ 
+  /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
-
+#ifdef  USE_FULL_ASSERT
 /**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t* file, uint32_t line)
-{
+{ 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
-
 }
-
-#endif
-
-/**
-  * @}
-  */ 
+#endif /* USE_FULL_ASSERT */
 
 /**
   * @}
-*/ 
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
