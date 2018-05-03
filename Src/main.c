@@ -124,13 +124,16 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC2_Init();
-  MX_USART6_UART_Init();
+  //MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
   printf("Hello1\r\n");
-  //HAL_ADC_Start_DMA(&hadc2,adcVal1,4);
+  HAL_ADC_Start_DMA(&hadc2,adcVal,4);
   //HAL_ADC_Start_DMA(&hadc3,adcVal2,4);
+  __IO uint8_t a = 5;
+  a++;
   printf("Hello2\r\n");
+  printf("Hello3\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -139,17 +142,19 @@ int main(void)
   {
   /* USER CODE END WHILE */
 
+a++;
+
   /* USER CODE BEGIN 3 */
 
 		//adcVal = 512;
 		
 		
-		HAL_ADC_Start(&hadc2);
-		HAL_ADC_PollForConversion(&hadc2, 100);
-		adcVal[0] = HAL_ADC_GetValue(&hadc2);
-		HAL_ADC_PollForConversion(&hadc2, 100);
-		adcVal[1] = HAL_ADC_GetValue(&hadc2);
-		HAL_ADC_Stop(&hadc2);
+//		HAL_ADC_Start(&hadc2);
+//		HAL_ADC_PollForConversion(&hadc2, 100);
+//		adcVal[0] = HAL_ADC_GetValue(&hadc2);
+//		HAL_ADC_PollForConversion(&hadc2, 100);
+//		adcVal[1] = HAL_ADC_GetValue(&hadc2);
+//		HAL_ADC_Stop(&hadc2);
 
 		//adcVal_mV[0] = adcVal[0] * 0.000806;  //adcVal * 3,3 /4096
 		//adcVal_mV[1] = adcVal[1] * 0.000806;  //adcVal * 3,3 /4096
@@ -158,7 +163,7 @@ int main(void)
 		//adcVal = ADC_GetSampleAvgNDeleteX(8 , 4);
 		//adcVal_mV = adcVal * 0.00073;  //adcVal * 3 /4096 --- Vref for ADC 3V in STM32
 		//adcVal_mV = adcVal * 0.0029;
-	  printf("ADC1: %d\t%.3fmV\t\tADC2: %d\t%.3fmV\r\n", adcVal[0],adcVal_mV[0],adcVal[1],adcVal_mV[1]);
+	  //printf("ADC1: %d\t%.3fmV\t\tADC2: %d\t%.3fmV\r\n", adcVal[0],adcVal_mV[0],adcVal[1],adcVal_mV[1]);
 	 //printf("ADC1: %d\t\tmV: %.3f\nADC2: %d\t\tmV: %.3f\nADC3: %d\t\tmV: %.3f\nADC4: %d\t\tmV: %.3f\n\r", adcVal1[0],adcVal_mV1[0],adcVal1[1],adcVal_mV1[1],adcVal1[2],adcVal_mV1[2],adcVal1[3],adcVal_mV1[3]);
 	 HAL_Delay(200);
 
