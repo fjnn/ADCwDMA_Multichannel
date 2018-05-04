@@ -88,8 +88,8 @@ PUTCHAR_PROTOTYPE
 
 /* USER CODE BEGIN 0 */
 
-__IO uint16_t adcVal[2], adcVal1[4], adcVal2[4];
-__IO double adcVal_mV[2], adcVal_mV1[4];
+__IO uint8_t adcVal[6], adcVal1[4], adcVal2[4];
+__IO double adcVal_mV[6], adcVal_mV1[4];
 
 /* USER CODE END 0 */
 
@@ -129,7 +129,7 @@ int main(void)
 
   printf("Hello1\r\n");
 
-  HAL_ADC_Start_DMA(&hadc2,adcVal,4);
+  HAL_ADC_Start_DMA(&hadc2,adcVal,6);
   //HAL_ADC_Start_DMA(&hadc3,adcVal2,4);
   __IO uint8_t a = 5;
   a++;
@@ -146,6 +146,7 @@ int main(void)
   /* USER CODE BEGIN 3 */
 
 		//adcVal = 512;
+	  //printf("%d\r\n", a);
 		
 		
 //		HAL_ADC_Start(&hadc2);
@@ -157,12 +158,17 @@ int main(void)
 
 		//adcVal_mV[0] = adcVal[0] * 0.000806;  //adcVal * 3,3 /4096
 		//adcVal_mV[1] = adcVal[1] * 0.000806;  //adcVal * 3,3 /4096
-		adcVal_mV[0] = adcVal[0] * 0.0129;  //adcVal * 3,3 /4096
-		adcVal_mV[1] = adcVal[1] * 0.0129;  //adcVal * 3,3 /4096
+		adcVal_mV[0] = adcVal[0] * 0.0129;  //adcVal * 3,3 /255
+		adcVal_mV[1] = adcVal[1] * 0.0129;  //adcVal * 3,3 /255
+		adcVal_mV[2] = adcVal[2] * 0.0129;  //adcVal * 3,3 /255
+		adcVal_mV[3] = adcVal[3] * 0.0129;  //adcVal * 3,3 /255
+		adcVal_mV[4] = adcVal[4] * 0.0129;  //adcVal * 3,3 /255
+		adcVal_mV[5] = adcVal[5] * 0.0129;  //adcVal * 3,3 /255
 		//adcVal = ADC_GetSampleAvgNDeleteX(8 , 4);
 		//adcVal_mV = adcVal * 0.00073;  //adcVal * 3 /4096 --- Vref for ADC 3V in STM32
 		//adcVal_mV = adcVal * 0.0029;
 	  //printf("ADC1: %d\t%.3fmV\t\tADC2: %d\t%.3fmV\r\n", adcVal[0],adcVal_mV[0],adcVal[1],adcVal_mV[1]);
+		printf("%.3fV\t%.3fV\t%.3fV\t%.3fV\t%.3fV\t%.3fV\r\n", adcVal_mV[0],adcVal_mV[1],adcVal_mV[2],adcVal_mV[3],adcVal_mV[4],adcVal_mV[5]);
 	 //printf("ADC1: %d\t\tmV: %.3f\nADC2: %d\t\tmV: %.3f\nADC3: %d\t\tmV: %.3f\nADC4: %d\t\tmV: %.3f\n\r", adcVal1[0],adcVal_mV1[0],adcVal1[1],adcVal_mV1[1],adcVal1[2],adcVal_mV1[2],adcVal1[3],adcVal_mV1[3]);
 	 HAL_Delay(200);
 
@@ -194,7 +200,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 60;
+  RCC_OscInitStruct.PLL.PLLN = 84;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -211,7 +217,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -245,7 +251,7 @@ static void MX_ADC2_Init(void)
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.NbrOfConversion = 2;
+  hadc2.Init.NbrOfConversion = 6;
   hadc2.Init.DMAContinuousRequests = ENABLE;
   hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -267,6 +273,42 @@ static void MX_ADC2_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = 2;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_10;
+  sConfig.Rank = 3;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Rank = 4;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_12;
+  sConfig.Rank = 5;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_13;
+  sConfig.Rank = 6;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
