@@ -48,7 +48,7 @@
 ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc2;
 
-UART_HandleTypeDef huart6;
+UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -60,7 +60,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC2_Init(void);
-static void MX_USART6_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -80,7 +80,7 @@ static void MX_USART6_UART_Init(void);
 
 PUTCHAR_PROTOTYPE
 {
-	HAL_UART_Transmit(&huart6, (uint8_t *)&ch, 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
 	return ch;
 }
 
@@ -124,10 +124,11 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC2_Init();
-  //MX_USART6_UART_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   printf("Hello1\r\n");
+
   HAL_ADC_Start_DMA(&hadc2,adcVal,4);
   //HAL_ADC_Start_DMA(&hadc3,adcVal2,4);
   __IO uint8_t a = 5;
@@ -141,8 +142,6 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-
-a++;
 
   /* USER CODE BEGIN 3 */
 
@@ -275,19 +274,19 @@ static void MX_ADC2_Init(void)
 
 }
 
-/* USART6 init function */
-static void MX_USART6_UART_Init(void)
+/* USART1 init function */
+static void MX_USART1_UART_Init(void)
 {
 
-  huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
-  huart6.Init.WordLength = UART_WORDLENGTH_8B;
-  huart6.Init.StopBits = UART_STOPBITS_1;
-  huart6.Init.Parity = UART_PARITY_NONE;
-  huart6.Init.Mode = UART_MODE_TX_RX;
-  huart6.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart6.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_HalfDuplex_Init(&huart6) != HAL_OK)
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_HalfDuplex_Init(&huart1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -325,6 +324,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
